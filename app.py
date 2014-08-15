@@ -39,7 +39,7 @@ def show_bibfile(bibfile):
     # Get All elements in a bibtex file
     # Present nicely - like the bibtexbrpwser.php does
     bib_data = parser.parse_file(bibfile+'.bib')
-    return render_template('base.html',bib_data=bib_data)
+    return render_template('list_bibentries.html',bib_data=bib_data)
     return 'Index Page'
    
 @app.route('/bibentry/<bibentry>')

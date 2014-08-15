@@ -1,9 +1,23 @@
 {% extends "base.html" %}
 
-
 {% block js %}
 {% endblock %}
 
-
 {% block main %}
+
+<h1>Welcome to the ACE Centre Knowledgebase</h1>
+<p class="lead">A searchable collection of all of our stored PDF's, Physical Books and Other things..
+We hope you find it useful..</p>
+
+<form class="form-search" role="form" action="">
+<h3 class="form-search-heading">Please search</h3>
+<input type="searchtxt" class="form-control" placeholder="Search text (e.g. Title, Tag, Author, Year, ISBN)" required autofocus>
+<div class="checkbox">
+  <label>
+    <input type="checkbox" value="attachments"> Only items with attachments?
+  </label>
+</div>
+<button class="btn btn-lg btn-primary btn-block" type="submit">Search</button>
+</form>
+
 {% endblock %}
