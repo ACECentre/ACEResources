@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block js %}
+{% endblock %}
+
+{% block main %}
+
+done a search..
+{{searchtxt}}
+
+
+{% for item in returneditems %}
+    {% if item.fields %}
+    <b>{{ item.fields['title']}}</b> 
+    <ul>
+    {% for field in item.fields %}
+    <li>{{ field}}:{{ item.fields[field]}} </li> 
+    {% endfor %}
+    </ul>
+    {% endif %}
+{% endfor %}
+
+
+{% endblock %}

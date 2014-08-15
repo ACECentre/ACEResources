@@ -1,6 +1,6 @@
 """
 Flask Documentation:     http://flask.pocoo.org/docs/
-Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
+Jinja2 Documentation:    http://jinja.pocoo.org/docs/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 
 This file creates your application.
@@ -11,9 +11,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from pybtex.database.input import bibtex
 
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
-
 app = Flask(__name__)
 
 ###
@@ -40,18 +38,33 @@ def show_bibfile(bibfile):
     # Present nicely - like the bibtexbrpwser.php does
     bib_data = parser.parse_file(bibfile+'.bib')
     return render_template('list_bibentries.html',bib_data=bib_data)
-    return 'Index Page'
    
 @app.route('/bibentry/<bibentry>')
 def show_bibentry(bibentry):
     # show the entry for a bibtex entry
     return 'User %s' % bibentry
 
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['POST'])
 def search():
-    if request.method == 'GET':
-        request.args.get('key', '')
-        bib_data = parser.parse_file(bibfile+'.bib')
+    if request.method == 'POST':
+        bib_data = parser.parse_file('resources/acecentre.bib')
+        searchtxt = request.form['searchtxt']
+        items = []
+        for item in bib_data.entries:
+            si = bib_data.entries[item]
+            newItem = []
+            if 'title' in si.fields and searchtxt in si.fields['title']:
+                items.append(item)
+            if 'author' in si.fields and searchtxt in si.fields['author']:
+                items.append(si)
+            if 'keywords' in si.fields and searchtxt in si.fields['keywords']:
+                items.append(si)
+            if 'abstract' in si.fields and searchtxt in si.fields['abstract']:
+                items.append(si)
+            # URLS..
+            # citation
+            # Date
+            
         # do some clever auto-detection of the kind of item it is..
         # text: search authors, abstract, tags, 
         # year: year
@@ -61,7 +74,16 @@ def search():
         # search attachments
         # https://github.com/willowtreeapps/flask-solr
         # https://github.com/toastdriven/pysolr
+        return render_template('search_results.html',searchtxt=searchtxt,returneditems=items)
         
+###
+# Internal functions
+###
+
+def prepare_item_for_web(bibentry):
+    """ Prepares a bibtex entry for the web. e.g. urls all on one line, title, author etc.. standardised """
+    return None
+          
 ###
 # The functions below should be applicable to all Flask apps.
 ###
