@@ -15,4 +15,9 @@ mock
 # ----------------------
 gevent
 gunicorn
-pybtex
+
+# Stuff for the scripts
+BeautifulSoup
+json
+elasticsearch
+pyelasticsearch

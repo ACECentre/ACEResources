@@ -1,2 +1,8 @@
 *.bib
 *.pyc
+Papers/
+*.pdf
+static/img/siteimages/*.png
+*.csv
+*.json
+test*.py

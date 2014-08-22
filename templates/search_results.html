@@ -7,18 +7,54 @@
 
 done a search..
 {{searchtxt}}
-
-
+<p>
+<div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>type</th>
+                  <th>img</th>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>date</th>
+                  <th>Tags</th>
+                </tr>
+              </thead>
+              <tbody>
+                
 {% for item in returneditems %}
-    {% if item.fields %}
-    <b>{{ item.fields['title']}}</b> 
-    <ul>
-    {% for field in item.fields %}
-    <li>{{ field}}:{{ item.fields[field]}} </li> 
-    {% endfor %}
-    </ul>
+    <tr>
+    <td>{{ item['_type'] }}</td>
+    <td> {% if item['_type'] == 'books'%}
+    <img src="{{ item['_source']['cover']}}" width='80' />
     {% endif %}
+    {% if item['_type'] == 'links' %}
+    <img src="/static/img/siteimages/{{ item['_source']['id'] }}-clipped.png" width='80' />
+    {% endif %}
+    </td>
+    <td>
+    {% if item['_type'] == 'books'%}
+        <a href="http://www.librarything.com/work/book/{{ item['_source']['id']}}">{{ item['_source']['title']}}</a>
+    {% endif %}
+    {% if item['_type'] == 'articles'%}
+        <a href="{{ item['_source']['citeulike']}}">{{ item['_source']['title']|stripbib}}</a> 
+    {% endif %}    
+    {% if item['_type'] == 'links'%}
+        <a href="{{ item['_source']['URL']}}">{{ item['_source']['title']}}</a> 
+    {% endif %}    
+    </td>
+    <td>{% if item['_type'] == 'books' or  item['_type'] == 'articles' %}
+    {{ item['_source']['authors']}}
+    {% endif %}</td>
+    <td>{{ item['_source']['created']}}</td>
+    <td>
+    {% for tag in item['_source']['tags' ]%}
+        {{ tag }},
+    {% endfor %}</td>
+    </tr>    
 {% endfor %}
-
+</tbody>
+</table>
+</p>
 
 {% endblock %}

@@ -8,11 +8,31 @@ This file creates your application.
 
 import os
 from flask import Flask, render_template, request, redirect, url_for
-from pybtex.database.input import bibtex
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 app = Flask(__name__)
+
+###
+# Jinja filters
+###
+
+def stripbib_filter(s):
+    """ Strip {} at end and beginning of string """
+    if s[:1] == '{':
+        return s[1:-1]
+    else:
+        return s
+    
+app.jinja_env.filters['stripbib'] = stripbib_filter
+
+###
+# ES
+###
+
+from pyelasticsearch import ElasticSearch
+es = ElasticSearch('http://localhost:9200/')
+
 
 ###
 # Routing for your application.
@@ -32,49 +52,29 @@ def about():
     """Render the website's about page."""
     return render_template('about.html')
 
-@app.route('/bibfile/<bibfile>')
-def show_bibfile(bibfile):    
-    # Get All elements in a bibtex file
-    # Present nicely - like the bibtexbrpwser.php does
-    bib_data = parser.parse_file(bibfile+'.bib')
-    return render_template('list_bibentries.html',bib_data=bib_data)
-   
-@app.route('/bibentry/<bibentry>')
-def show_bibentry(bibentry):
-    # show the entry for a bibtex entry
-    return 'User %s' % bibentry
 
 @app.route('/search', methods=['POST'])
 def search():
     if request.method == 'POST':
-        bib_data = parser.parse_file('resources/acecentre.bib')
         searchtxt = request.form['searchtxt']
-        items = []
-        for item in bib_data.entries:
-            si = bib_data.entries[item]
-            newItem = []
-            if 'title' in si.fields and searchtxt in si.fields['title']:
-                items.append(item)
-            if 'author' in si.fields and searchtxt in si.fields['author']:
-                items.append(si)
-            if 'keywords' in si.fields and searchtxt in si.fields['keywords']:
-                items.append(si)
-            if 'abstract' in si.fields and searchtxt in si.fields['abstract']:
-                items.append(si)
-            # URLS..
-            # citation
-            # Date
-            
-        # do some clever auto-detection of the kind of item it is..
-        # text: search authors, abstract, tags, 
-        # year: year
-        # doi or isbn or some kind of url.. 
-        # and options:
-          #has attachments (or in our library) - true or false
-        # search attachments
-        # https://github.com/willowtreeapps/flask-solr
-        # https://github.com/toastdriven/pysolr
-        return render_template('search_results.html',searchtxt=searchtxt,returneditems=items)
+        if request.method == 'POST':
+            items = []
+            query = {'query': {
+                 'filtered': {
+                     'query': {
+                         'query_string': {'query': searchtxt}
+                     },
+                     "highlight" : {
+                        "fields" : {
+                            "attachment" : {}
+                        }
+                    }
+                 },
+             },
+            }
+            #items = es.search(query, index='aceresources')        
+            items = es.search(searchtxt, index='aceresources')            
+        return render_template('search_results.html',searchtxt=searchtxt,returneditems=items['hits']['hits'])
         
 ###
 # Internal functions
@@ -113,5 +113,4 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    parser = bibtex.Parser()
     app.run(debug=True)
