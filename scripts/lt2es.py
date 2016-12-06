@@ -11,7 +11,7 @@ url = "https://www.librarything.com/api_getdata.php?userid=ace-centre&key=195079
 books = json.load(open('lt.json'))
 
 for book in books['books']:
-    title = abstract = comments = urls = citeulike = authors = tags = citation = created = file64 = fname = attachment = ''
+    createdVar = title = abstract = comments = urls = citeulike = authors = tags = citation = created = file64 = fname = attachment = ''
     # there is a bug with the date thing.. cant work out what it is..
     b = books['books'][book]
     for item in b['collections']:
@@ -21,6 +21,11 @@ for book in books['books']:
             location = ''
     
     print location
+    
+    if b['publicationdate'] in b:
+    	if b['publicationdate'] is not '?':
+    		createdVar = b['publicationdate'] 
+    		
         
     doc = {
         'id': b['book_id'],
@@ -28,12 +33,12 @@ for book in books['books']:
         'authors' : b['author_fl'],
         'comments': b['comments'] if 'comments' in b else '',
         'tags' : b['tags'] if 'tags' in b else {},
-        'created': b['publicationdate'] if 'publicationdate' in b else '',
+        'created': createdVar,
         'cover' : b['cover'] if 'cover' in b else '',
         'location': location
     }
     
-    #print doc
+    print doc
     res = es.index(index="aceresources", doc_type='books', id=b['book_id'], body=doc)
     print(res['created'])
     

@@ -20,7 +20,6 @@ es.indices.put_mapping(
                 'attachment': {'type': 'attachment',
                             "fields" : {
                             "title" : { "store" : "yes" },
-                            "file" : { "term_vector":"with_positions_offsets", "store":"yes"  }
                             }
                 },
                 'authors': {'type': 'string'},

@@ -8,10 +8,13 @@ This file creates your application.
 
 import os
 from flask import Flask, render_template, request, redirect, url_for
+from werkzeug.contrib.fixers import ProxyFix
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
+
 
 ###
 # Jinja filters
